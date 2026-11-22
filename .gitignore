@@ -1,0 +1,19 @@
+
+# Dependencias de Composer
+/vendor/
+
+# Variables de entorno y credenciales
+.env
+.env.*
+
+# Permitir la plantilla de configuración
+!.env.example
+
+# Archivos temporales
+*.log
+*.tmp
+
+# Archivos del sistema operativo y editor
+.DS_Store
+Thumbs.db
+.idea/
