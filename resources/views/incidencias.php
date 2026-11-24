@@ -7,7 +7,11 @@ require __DIR__ . '/layout/header.php';
     <div><p class="eyebrow mb-2">GESTIÓN DE EVENTOS</p><h1 class="h2 mb-1">Incidencias</h1><p class="text-secondary mb-0">Registra eventos y da seguimiento a su resolución.</p></div>
     <button class="btn btn-primary" id="createIncidentButton"><i class="bi bi-plus-lg me-2"></i>Nueva incidencia</button>
 </section>
+<<<<<<< HEAD
 <div class="alert alert-soft-info mt-4" role="note"><i class="bi bi-info-circle-fill me-2"></i>La API actual persiste dispositivo, título, descripción, gravedad y estado; el ID lo genera el backend. Tipo y origen no se encuentran soportados por el endpoint actual.</div>
+=======
+<div class="alert alert-info border-0 mt-4" role="note"><i class="bi bi-info-circle-fill me-2"></i>La API actual persiste dispositivo, título, descripción, gravedad y estado; el ID lo genera el backend. Tipo y origen no se encuentran soportados por el endpoint actual.</div>
+>>>>>>> 6b1b0fe43da5500cc23cabc3006ef13f0e7c5369
 <section class="row g-3 mt-1" aria-label="Métricas de incidencias">
     <div class="col-6 col-xl-3"><article class="metric-card metric-card-compact"><div class="metric-icon icon-blue"><i class="bi bi-collection"></i></div><p class="metric-label">Total</p><p id="incidentMetricTotal" class="metric-value">—</p></article></div>
     <div class="col-6 col-xl-3"><article class="metric-card metric-card-compact"><div class="metric-icon icon-red"><i class="bi bi-exclamation-circle"></i></div><p class="metric-label">Abiertas</p><p id="incidentMetricOpen" class="metric-value">—</p></article></div>

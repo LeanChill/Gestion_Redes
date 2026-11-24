@@ -3,6 +3,7 @@
     var App = window.App;
     var incidents = [];
     var incidentModal;
+<<<<<<< HEAD
     var incidentsPreview = false;
     var devicesPreview = false;
     var sampleDevices = [
@@ -28,6 +29,8 @@
         document.getElementById('incidentMetricProgress').textContent = counts.en_proceso;
         document.getElementById('incidentMetricResolved').textContent = counts.resueltas;
     }
+=======
+>>>>>>> 6b1b0fe43da5500cc23cabc3006ef13f0e7c5369
 
     async function loadMetrics() {
         try {
@@ -37,8 +40,15 @@
             document.getElementById('incidentMetricProgress').textContent = metrics.en_proceso == null ? '0' : metrics.en_proceso;
             document.getElementById('incidentMetricResolved').textContent = metrics.resueltas == null ? '0' : metrics.resueltas;
         } catch (error) {
+<<<<<<< HEAD
             updatePreviewMetrics();
             App.showAlert('Vista previa: métricas de incidencias de ejemplo. ' + error.message, 'warning');
+=======
+            ['incidentMetricTotal', 'incidentMetricOpen', 'incidentMetricProgress', 'incidentMetricResolved'].forEach(function (id) {
+                document.getElementById(id).textContent = '—';
+            });
+            App.showAlert('No fue posible cargar las métricas de incidencias: ' + error.message, 'warning');
+>>>>>>> 6b1b0fe43da5500cc23cabc3006ef13f0e7c5369
         }
     }
 
@@ -73,6 +83,7 @@
         try {
             var result = App.unwrap(await App.apiRequest('/api/incidencias'));
             incidents = Array.isArray(result) ? result : [];
+<<<<<<< HEAD
             incidentsPreview = false;
             showRows();
         } catch (error) {
@@ -81,6 +92,12 @@
             updatePreviewMetrics();
             showRows();
             App.showAlert('Vista previa con incidencias de ejemplo. Los cambios son temporales y no se guardan en la base de datos. ' + error.message, 'warning');
+=======
+            showRows();
+        } catch (error) {
+            body.innerHTML = '<tr><td colspan="6"><div class="empty-state">No se pudieron cargar las incidencias.</div></td></tr>';
+            App.showAlert('Error al consultar incidencias: ' + error.message, 'warning');
+>>>>>>> 6b1b0fe43da5500cc23cabc3006ef13f0e7c5369
         }
     }
 
@@ -89,17 +106,25 @@
         try {
             var result = App.unwrap(await App.apiRequest('/api/dispositivos'));
             var devices = Array.isArray(result) ? result : [];
+<<<<<<< HEAD
             devicesPreview = false;
+=======
+>>>>>>> 6b1b0fe43da5500cc23cabc3006ef13f0e7c5369
             select.innerHTML = '<option value="">Selecciona un dispositivo</option>' + devices.map(function (device) {
                 return '<option value="' + Number(device.id) + '">' + App.escapeHtml(device.nombre || ('Dispositivo #' + device.id)) + ' · ' + App.escapeHtml(device.ip || '') + '</option>';
             }).join('');
             if (!devices.length) select.innerHTML = '<option value="">Registra un dispositivo primero</option>';
         } catch (error) {
+<<<<<<< HEAD
             devicesPreview = true;
             select.innerHTML = '<option value="">Selecciona un dispositivo</option>' + sampleDevices.map(function (device) {
                 return '<option value="' + device.id + '">' + App.escapeHtml(device.nombre) + ' · ' + App.escapeHtml(device.ip) + '</option>';
             }).join('');
             App.showAlert('Vista previa: se muestran dispositivos de ejemplo. ' + error.message, 'warning');
+=======
+            select.innerHTML = '<option value="">No se pudieron cargar dispositivos</option>';
+            App.showAlert('No se pudieron cargar los dispositivos del selector: ' + error.message, 'warning');
+>>>>>>> 6b1b0fe43da5500cc23cabc3006ef13f0e7c5369
         }
     }
 
@@ -108,6 +133,7 @@
         var previous = incidents.find(function (item) { return Number(item.id) === Number(id); });
         var oldState = previous ? previous.estado : '';
         select.disabled = true;
+<<<<<<< HEAD
         if (incidentsPreview || (previous && previous._preview)) {
             if (previous) previous.estado = select.value;
             select.disabled = false;
@@ -116,6 +142,8 @@
             App.showAlert('Vista previa: el estado se actualizó solo en esta sesión.', 'warning');
             return;
         }
+=======
+>>>>>>> 6b1b0fe43da5500cc23cabc3006ef13f0e7c5369
         try {
             await App.apiRequest('/api/incidencias/' + encodeURIComponent(id) + '/estado', {
                 method: 'PATCH',
@@ -150,6 +178,7 @@
             incid_tipo: document.getElementById('incid_tipo').value.trim(),
             incid_origen: document.getElementById('incid_origen').value.trim()
         };
+<<<<<<< HEAD
         if (incidentsPreview || devicesPreview) {
             var selected = document.getElementById('incid_dis_id');
             var deviceName = selected.options[selected.selectedIndex].text.split(' · ')[0];
@@ -166,6 +195,8 @@
             App.showAlert('Vista previa: la incidencia se añadió temporalmente; no fue guardada en la base de datos.', 'warning');
             return;
         }
+=======
+>>>>>>> 6b1b0fe43da5500cc23cabc3006ef13f0e7c5369
         var button = document.getElementById('saveIncidentButton');
         button.disabled = true;
         try {

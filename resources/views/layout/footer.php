@@ -1,3 +1,4 @@
+<<<<<<< HEAD
         </main>
         <footer class="app-footer">
             <span>Sede principal · Inventario de infraestructura</span>
@@ -23,6 +24,15 @@
         </div>
     </div>
 </div>
+=======
+</main>
+<footer class="app-footer">
+    <div class="container-fluid app-container d-flex flex-column flex-sm-row justify-content-between gap-1">
+        <span>Sistema de Gestión de Dispositivos de Red Local</span>
+        <span class="text-secondary">Panel de administración</span>
+    </div>
+</footer>
+>>>>>>> 6b1b0fe43da5500cc23cabc3006ef13f0e7c5369
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/assets/js/app.js"></script>
 <?php if (!empty($pageScript)): ?>

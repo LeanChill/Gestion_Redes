@@ -13,10 +13,14 @@
             document.getElementById('metricOnline').textContent = metricValue(metrics.en_linea);
             document.getElementById('metricOffline').textContent = metricValue(metrics.fuera_de_linea);
         } catch (error) {
+<<<<<<< HEAD
             document.getElementById('metricDevices').textContent = '7';
             document.getElementById('metricOnline').textContent = '5';
             document.getElementById('metricOffline').textContent = '1';
             App.showAlert('Vista previa: métricas de dispositivos de ejemplo. ' + error.message, 'warning');
+=======
+            App.showAlert('No fue posible cargar las métricas de dispositivos: ' + error.message, 'warning');
+>>>>>>> 6b1b0fe43da5500cc23cabc3006ef13f0e7c5369
         }
     }
 
@@ -25,8 +29,12 @@
             var metrics = App.unwrap(await App.apiRequest('/api/incidencias/metricas'));
             document.getElementById('metricOpenIncidents').textContent = metricValue(metrics.abiertas);
         } catch (error) {
+<<<<<<< HEAD
             document.getElementById('metricOpenIncidents').textContent = '2';
             App.showAlert('Vista previa: métricas de incidencias de ejemplo. ' + error.message, 'warning');
+=======
+            App.showAlert('No fue posible cargar las métricas de incidencias: ' + error.message, 'warning');
+>>>>>>> 6b1b0fe43da5500cc23cabc3006ef13f0e7c5369
         }
     }
 
@@ -71,6 +79,7 @@
                     App.escapeHtml(item.title) + '</strong><small>' + App.escapeHtml(item.detail) + '</small></div></div>';
             }).join('');
         } catch (error) {
+<<<<<<< HEAD
             host.innerHTML = [
                 ['online', 'Switch principal · en_linea', '8 ms · Ejemplo de actividad'],
                 ['incident', 'Incidencia: Conectividad intermitente', 'Router de acceso · abierta · Ejemplo'],
@@ -80,6 +89,9 @@
                     App.escapeHtml(item[1]) + '</strong><small>' + App.escapeHtml(item[2]) + '</small></div></div>';
             }).join('');
             App.showAlert('Vista previa: actividad de ejemplo. ' + error.message, 'warning');
+=======
+            host.innerHTML = '<div class="empty-state">No se pudo cargar la actividad. ' + App.escapeHtml(error.message) + '</div>';
+>>>>>>> 6b1b0fe43da5500cc23cabc3006ef13f0e7c5369
         }
     }
 
