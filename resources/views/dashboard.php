@@ -14,16 +14,16 @@ require __DIR__ . '/layout/header.php';
 
 <section class="row g-3 g-xl-4 mt-2" aria-label="Métricas">
     <div class="col-12 col-sm-6 col-xl-3">
-        <article class="metric-card"><div class="metric-icon icon-blue"><i class="bi bi-hdd-network"></i></div><p class="metric-label">Dispositivos registrados</p><p id="metricDevices" class="metric-value">—</p><small class="text-secondary">Inventario total</small></article>
+        <article class="metric-card"><div class="metric-icon icon-blue"><i class="bi bi-hdd-network"></i></div><p class="metric-label">Total de dispositivos</p><p id="metricDevices" class="metric-value">—</p><small class="text-secondary">Inventario registrado</small></article>
     </div>
     <div class="col-12 col-sm-6 col-xl-3">
-        <article class="metric-card"><div class="metric-icon icon-green"><i class="bi bi-wifi"></i></div><p class="metric-label">En línea</p><p id="metricOnline" class="metric-value">—</p><small class="text-secondary">Conectividad confirmada</small></article>
-    </div>
-    <div class="col-12 col-sm-6 col-xl-3">
-        <article class="metric-card"><div class="metric-icon icon-red"><i class="bi bi-wifi-off"></i></div><p class="metric-label">Fuera de línea</p><p id="metricOffline" class="metric-value">—</p><small class="text-secondary">Requieren revisión</small></article>
+        <article class="metric-card"><div class="metric-icon icon-green"><i class="bi bi-activity"></i></div><p class="metric-label">Estado de conectividad</p><div class="metric-dual"><span><strong id="metricOnline" class="metric-value text-success">—</strong><small>En línea</small></span><span><strong id="metricOffline" class="metric-value text-danger">—</strong><small>Fuera de línea</small></span></div></article>
     </div>
     <div class="col-12 col-sm-6 col-xl-3">
         <article class="metric-card"><div class="metric-icon icon-amber"><i class="bi bi-exclamation-diamond"></i></div><p class="metric-label">Incidencias abiertas</p><p id="metricOpenIncidents" class="metric-value">—</p><small class="text-secondary">Pendientes de atención</small></article>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <article class="metric-card"><div class="metric-icon icon-blue"><i class="bi bi-clock-history"></i></div><p class="metric-label">Último escaneo</p><p id="metricLastScan" class="metric-value metric-date">—</p><small id="metricLastScanDetails" class="text-secondary">Consultando historial…</small></article>
     </div>
 </section>
 

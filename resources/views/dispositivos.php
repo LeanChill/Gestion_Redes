@@ -9,7 +9,10 @@ require __DIR__ . '/layout/header.php';
             <h1>Dispositivos</h1>
             <p>Tu infraestructura de red, organizada en un solo lugar.</p>
         </div>
-        <button class="btn btn-primary btn-icon" type="button" id="createDeviceButton"><i class="bi bi-plus-lg"></i>Registrar dispositivo</button>
+        <div class="d-flex flex-wrap gap-2">
+            <button class="btn btn-light btn-icon" type="button" id="pingAllDevicesButton"><i class="bi bi-arrow-repeat"></i>Escanear toda la red</button>
+            <button class="btn btn-primary btn-icon" type="button" id="createDeviceButton"><i class="bi bi-plus-lg"></i>Registrar dispositivo</button>
+        </div>
     </header>
 
     <div id="deviceSuccessBanner" class="alert alert-soft-success d-none" role="status" aria-live="polite"></div>
@@ -45,7 +48,7 @@ require __DIR__ . '/layout/header.php';
     <div id="deviceList" class="device-list-wrap d-none">
         <div class="table-responsive">
             <table class="table app-table">
-                <thead><tr><th>CÓDIGO</th><th>NOMBRE</th><th>DIRECCIÓN IP</th><th>UBICACIÓN</th><th>ESTADO</th><th>ACCIONES</th></tr></thead>
+                <thead><tr><th>ID</th><th>NOMBRE</th><th>IP</th><th>TIPO</th><th>UBICACIÓN</th><th>ESTADO</th><th>CONECTIVIDAD</th><th>ACCIONES</th></tr></thead>
                 <tbody id="deviceListBody"></tbody>
             </table>
         </div>
@@ -68,10 +71,9 @@ require __DIR__ . '/layout/header.php';
                     <p>Los campos con * son obligatorios.</p>
                     <div class="section-fields">
                         <div class="field">
-                            <label class="form-label" for="deviceCode">Código *</label>
-                            <div class="input-icon-wrap"><input id="deviceCode" class="form-control code-input" maxlength="10" placeholder="DEV-011" required><i class="bi bi-lock d-none" id="deviceCodeLock" aria-hidden="true"></i></div>
-                            <small class="form-hint" id="deviceCodeHint">Identificador para consultar al equipo. El backend actual genera el ID numérico.</small>
-                            <small class="field-error" data-error-for="deviceCode">Ingresa un código de dispositivo.</small>
+                            <label class="form-label" for="deviceCode">Código</label>
+                            <div class="input-icon-wrap"><input id="deviceCode" class="form-control code-input" maxlength="5" placeholder="Se asigna al guardar" readonly><i class="bi bi-lock" id="deviceCodeLock" aria-hidden="true"></i></div>
+                            <small class="form-hint" id="deviceCodeHint">El sistema genera un código de 5 caracteres al guardar.</small>
                         </div>
                         <div class="field">
                             <label class="form-label" for="deviceName">Nombre / identificador *</label>
@@ -79,45 +81,44 @@ require __DIR__ . '/layout/header.php';
                             <small class="field-error" data-error-for="deviceName">Ingresa el nombre del dispositivo.</small>
                         </div>
                         <div class="field">
-                            <label class="form-label" for="deviceIp">Dirección IPv4 *</label>
-                            <div class="input-icon-wrap"><input id="deviceIp" class="form-control mono" maxlength="15" placeholder="192.168.1.21" inputmode="decimal" autocomplete="off" required><i class="bi bi-exclamation-circle d-none" id="deviceIpIcon" aria-hidden="true"></i></div>
-                            <small class="form-hint" id="deviceIpHint">Cuatro números de 0 a 255, separados por puntos.</small>
-                            <small class="field-error" data-error-for="deviceIp">Ingresa una dirección IPv4 válida.</small>
+                            <label class="form-label" for="deviceIp">Dirección IP *</label>
+                            <div class="input-icon-wrap"><input id="deviceIp" class="form-control mono" maxlength="50" placeholder="192.168.1.21" autocomplete="off" required><i class="bi bi-exclamation-circle d-none" id="deviceIpIcon" aria-hidden="true"></i></div>
+                            <small class="form-hint" id="deviceIpHint">IPv4 o IPv6. Cada dirección debe ser única.</small>
+                            <small class="field-error" data-error-for="deviceIp">Ingresa una dirección IP válida.</small>
                         </div>
                         <div class="field">
                             <label class="form-label" for="deviceType">Tipo de dispositivo *</label>
                             <select id="deviceType" class="form-select" required>
-                                <option value="AP">Punto de acceso</option><option value="RT">Router</option><option value="SW">Switch</option><option value="FW">Firewall</option><option value="SV">Servidor</option><option value="PC">Host / PC</option>
+                                <option value="AP">Punto de acceso</option><option value="RT">Router</option><option value="SW">Switch</option><option value="FW">Firewall</option><option value="SV">Servidor</option><option value="PC">Host / PC</option><option value="OT">Otro</option>
                             </select>
                             <small class="field-error" data-error-for="deviceType">Selecciona un tipo de dispositivo.</small>
+                        </div>
+                        <div class="field field-span-2">
+                            <label class="form-label" for="deviceLocation">Ubicación</label>
+                            <input id="deviceLocation" class="form-control" maxlength="120" placeholder="Ej. Laboratorio · Rack 2">
                         </div>
                     </div>
                 </section>
                 <section class="form-section">
-                    <h2>Contexto y asignación</h2>
-                    <p>Ubica el dispositivo y define quién lo gestiona.</p>
+                    <h2>Información del dispositivo</h2>
+                    <p>Completa los campos definidos para el inventario.</p>
                     <div class="section-fields">
                         <div class="field">
-                            <label class="form-label" for="deviceLocation">Ubicación *</label>
-                            <input id="deviceLocation" class="form-control" maxlength="250" placeholder="Ej. Sala 3" required>
-                            <small class="field-error" data-error-for="deviceLocation">Indica la ubicación del equipo.</small>
+                            <label class="form-label" for="deviceMac">Dirección MAC</label>
+                            <input id="deviceMac" class="form-control mono" maxlength="20" placeholder="00:1A:2B:3C:4D:5E">
                         </div>
                         <div class="field">
-                            <label class="form-label" for="deviceResponsible">Responsable *</label>
-                            <select id="deviceResponsible" class="form-select" required>
-                                <option value="">Selecciona un responsable</option><option value="Carlos Ruiz">Carlos Ruiz</option><option value="Laura Méndez">Laura Méndez</option><option value="Ana Martínez">Ana Martínez</option><option value="Equipo de redes">Equipo de redes</option>
-                            </select>
-                            <small class="field-error" data-error-for="deviceResponsible">Selecciona un responsable.</small>
+                            <label class="form-label" for="deviceOs">Sistema operativo</label>
+                            <input id="deviceOs" class="form-control" maxlength="100" placeholder="Ej. RouterOS 7">
                         </div>
                         <div class="field">
-                            <label class="form-label" for="deviceFunction">Función / Observaciones *</label>
-                            <input id="deviceFunction" class="form-control" maxlength="250" placeholder="Ej. Distribución de red LAN" required>
-                            <small class="field-error" data-error-for="deviceFunction">Indica la función o las observaciones.</small>
+                            <label class="form-label" for="deviceObservations">Observaciones</label>
+                            <input id="deviceObservations" class="form-control" maxlength="250" placeholder="Notas del dispositivo">
                         </div>
                         <div class="field">
                             <label class="form-label" for="deviceStatus">Estado operativo *</label>
-                            <select id="deviceStatus" class="form-select" required><option value="activo">Activo</option><option value="inactivo">Inactivo</option><option value="falla">En falla</option></select>
-                            <small class="form-hint">Activo, inactivo o en falla.</small>
+                            <select id="deviceStatus" class="form-select" required><option value="A">Activo</option><option value="I">Inactivo</option><option value="F">En falla</option><option value="W">Advertencia</option></select>
+                            <small class="form-hint">Códigos del inventario: A, I, F o W.</small>
                         </div>
                     </div>
                 </section>

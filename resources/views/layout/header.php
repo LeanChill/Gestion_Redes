@@ -2,7 +2,7 @@
 $pageTitle = isset($titulo) ? (string) $titulo : 'Optisys · Consola de Red';
 $currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
 $navItems = [
-    '/' => ['Inicio', 'bi-house-door'],
+    '/' => ['Dashboard', 'bi-speedometer2'],
     '/dispositivos' => ['Dispositivos', 'bi-hdd-stack'],
     '/monitoreo' => ['Monitoreo', 'bi-activity'],
     '/incidencias' => ['Incidencias', 'bi-exclamation-triangle'],
@@ -12,6 +12,17 @@ $renderNavigation = static function (string $activePath) use ($navItems): void {
         $active = $activePath === $path;
         ?>
         <a class="sidebar-link<?= $active ? ' active' : '' ?>" href="<?= htmlspecialchars($path, ENT_QUOTES, 'UTF-8') ?>"<?= $active ? ' aria-current="page"' : '' ?>>
+            <i class="bi <?= htmlspecialchars($icon, ENT_QUOTES, 'UTF-8') ?>" aria-hidden="true"></i>
+            <span><?= htmlspecialchars($label, ENT_QUOTES, 'UTF-8') ?></span>
+        </a>
+        <?php
+    }
+};
+$renderTopNavigation = static function (string $activePath) use ($navItems): void {
+    foreach ($navItems as $path => [$label, $icon]) {
+        $active = $activePath === $path;
+        ?>
+        <a class="top-nav-link<?= $active ? ' active' : '' ?>" href="<?= htmlspecialchars($path, ENT_QUOTES, 'UTF-8') ?>"<?= $active ? ' aria-current="page"' : '' ?>>
             <i class="bi <?= htmlspecialchars($icon, ENT_QUOTES, 'UTF-8') ?>" aria-hidden="true"></i>
             <span><?= htmlspecialchars($label, ENT_QUOTES, 'UTF-8') ?></span>
         </a>
@@ -67,6 +78,9 @@ $renderNavigation = static function (string $activePath) use ($navItems): void {
                 <span class="account-copy"><strong>Ana Martínez</strong><small>Administradora de red</small></span>
             </div>
         </header>
+        <nav class="primary-navigation d-none d-lg-flex" aria-label="Navegación principal">
+            <?= $renderTopNavigation($currentPath) ?>
+        </nav>
 
         <main class="app-content">
             <div id="globalAlerts" class="global-alerts" aria-live="polite"></div>

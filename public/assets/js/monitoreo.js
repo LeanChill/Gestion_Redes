@@ -6,18 +6,18 @@
     var previewMode = false;
     var detailsModal;
     var sampleDevices = [
-        { id: 1, codigo: 'DEV-001', nombre: 'Switch principal', ip: '192.168.1.10', tipo: 'SW', estado: 'en_linea' },
-        { id: 2, codigo: 'DEV-002', nombre: 'Router de acceso', ip: '192.168.1.1', tipo: 'RT', estado: 'en_linea' },
-        { id: 3, codigo: 'DEV-003', nombre: 'Firewall perimetral', ip: '192.168.1.2', tipo: 'FW', estado: 'fuera_de_linea' },
-        { id: 4, codigo: 'DEV-004', nombre: 'Punto de acceso — Recepción', ip: '192.168.1.20', tipo: 'AP', estado: 'en_linea' },
-        { id: 5, codigo: 'DEV-005', nombre: 'Switch de respaldo', ip: '192.168.1.11', tipo: 'SW', estado: 'desconocido' },
-        { id: 6, codigo: 'DEV-006', nombre: 'Router de laboratorio', ip: '192.168.1.3', tipo: 'RT', estado: 'en_linea' },
-        { id: 11, codigo: 'DEV-011', nombre: 'Punto de acceso — Sala 3', ip: '192.168.1.21', tipo: 'AP', estado: 'en_linea' }
+        { id: 'D0001', codigo: 'D0001', nombre: 'Switch principal', ip: '192.168.1.10', tipo: 'SW', estado: 'en_linea' },
+        { id: 'D0002', codigo: 'D0002', nombre: 'Router de acceso', ip: '192.168.1.1', tipo: 'RT', estado: 'en_linea' },
+        { id: 'D0003', codigo: 'D0003', nombre: 'Firewall perimetral', ip: '192.168.1.2', tipo: 'FW', estado: 'fuera_de_linea' },
+        { id: 'D0004', codigo: 'D0004', nombre: 'Punto de acceso — Recepción', ip: '192.168.1.20', tipo: 'AP', estado: 'en_linea' },
+        { id: 'D0005', codigo: 'D0005', nombre: 'Switch de respaldo', ip: '192.168.1.11', tipo: 'SW', estado: 'desconocido' },
+        { id: 'D0006', codigo: 'D0006', nombre: 'Router de laboratorio', ip: '192.168.1.3', tipo: 'RT', estado: 'en_linea' },
+        { id: 'D0011', codigo: 'D0011', nombre: 'Punto de acceso — Sala 3', ip: '192.168.1.21', tipo: 'AP', estado: 'en_linea' }
     ];
     var typeLabels = { RT: 'Router', SW: 'Switch', AP: 'Punto de acceso', FW: 'Firewall', SV: 'Servidor', PC: 'Host / PC' };
 
     function codeFor(device) {
-        return String(device.codigo || device.dis_id || ('DEV-' + String(device.id).padStart(3, '0')));
+        return String(device.codigo || device.dis_id || device.id || '');
     }
 
     function stateFor(state) {
@@ -82,9 +82,11 @@
         }
         host.innerHTML = rows.map(function (row) {
             var state = stateFor(row.estado);
-            var latency = row.latencia_ms == null ? 'Latencia no disponible' : row.latencia_ms + ' ms';
+            var measurements = [row.latencia_ms == null ? 'Latencia no disponible' : row.latencia_ms + ' ms'];
+            if (row.cpu_usage != null) measurements.push('CPU ' + row.cpu_usage + '%');
+            if (row.memory_usage != null) measurements.push('Memoria ' + row.memory_usage + '%');
             var date = row.fecha_monitoreo || row.mon_fec;
-            return '<div class="history-row"><span class="network-indicator ' + (state.count === 'active' ? 'online' : (state.count === 'failure' ? 'offline' : '')) + '"></span><div><strong class="small">' + state.text + (preview ? ' · Ejemplo' : '') + '</strong><small>' + App.escapeHtml(App.formatDate(date)) + '</small></div><span class="mono small text-secondary">' + App.escapeHtml(latency) + '</span></div>';
+            return '<div class="history-row"><span class="network-indicator ' + (state.count === 'active' ? 'online' : (state.count === 'failure' ? 'offline' : '')) + '"></span><div><strong class="small">' + state.text + (preview ? ' · Ejemplo' : '') + '</strong><small>' + App.escapeHtml(App.formatDate(date)) + '</small></div><span class="mono small text-secondary">' + App.escapeHtml(measurements.join(' · ')) + '</span></div>';
         }).join('');
     }
 
@@ -116,7 +118,7 @@
             return;
         }
         var device = devices.find(function (item) {
-            return codeFor(item).toLowerCase() === value || String(item.id) === value.replace(/^dev-/, '');
+            return codeFor(item).toLowerCase() === value;
         });
         if (!device) {
             App.showAlert('No se encontró un dispositivo con el código ' + value.toUpperCase() + '.', 'warning');

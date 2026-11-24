@@ -8,27 +8,44 @@
     var justCreatedId = null;
     var viewMode = 'grid';
     var formMode = 'create';
-    var typeLabels = { RT: 'Router', SW: 'Switch', AP: 'Punto de acceso', FW: 'Firewall', SV: 'Servidor', PC: 'Host / PC' };
+    var monitorStates = {};
+    var typeLabels = { RT: 'Router', SW: 'Switch', AP: 'Punto de acceso', FW: 'Firewall', SV: 'Servidor', PC: 'Host / PC', OT: 'Otro' };
     var typeIcons = { RT: 'bi-router', SW: 'bi-hdd-network', AP: 'bi-wifi', FW: 'bi-shield-check', SV: 'bi-server', PC: 'bi-pc-display' };
     var sampleDevices = [
-        { id: 1, codigo: 'DEV-001', nombre: 'Switch principal', ip: '192.168.1.10', tipo: 'SW', estado: 'en_linea', ubicacion: 'Cuarto de comunicaciones', responsable: 'Carlos Ruiz', funcion: 'Distribución de red LAN' },
-        { id: 2, codigo: 'DEV-002', nombre: 'Router de acceso', ip: '192.168.1.1', tipo: 'RT', estado: 'en_linea', ubicacion: 'Sala de servidores', responsable: 'Laura Méndez', funcion: 'Enrutamiento de red' },
-        { id: 3, codigo: 'DEV-003', nombre: 'Firewall perimetral', ip: '192.168.1.2', tipo: 'FW', estado: 'fuera_de_linea', ubicacion: 'Sala de servidores', responsable: 'Laura Méndez', funcion: 'Seguridad perimetral' },
-        { id: 4, codigo: 'DEV-004', nombre: 'Punto de acceso — Recepción', ip: '192.168.1.20', tipo: 'AP', estado: 'en_linea', ubicacion: 'Recepción', responsable: 'Carlos Ruiz', funcion: 'Cobertura inalámbrica' },
-        { id: 5, codigo: 'DEV-005', nombre: 'Switch de respaldo', ip: '192.168.1.11', tipo: 'SW', estado: 'desconocido', ubicacion: 'Almacén técnico', responsable: 'Ana Martínez', funcion: 'Redundancia LAN' },
-        { id: 6, codigo: 'DEV-006', nombre: 'Router de laboratorio', ip: '192.168.1.3', tipo: 'RT', estado: 'en_linea', ubicacion: 'Laboratorio', responsable: 'Ana Martínez', funcion: 'Red de pruebas' }
+        { id: 'D0001', codigo: 'D0001', nombre: 'Switch principal', ip: '192.168.1.10', tipo: 'SW', ubicacion: 'Centro de datos', estado: 'en_linea', sistema_operativo: 'SwitchOS', observaciones: 'Distribución de red LAN' },
+        { id: 'D0002', codigo: 'D0002', nombre: 'Router de acceso', ip: '192.168.1.1', tipo: 'RT', ubicacion: 'Rack principal', estado: 'en_linea', sistema_operativo: 'RouterOS', observaciones: 'Enrutamiento de red' },
+        { id: 'D0003', codigo: 'D0003', nombre: 'Firewall perimetral', ip: '192.168.1.2', tipo: 'FW', ubicacion: 'Sala de servidores', estado: 'fuera_de_linea', sistema_operativo: 'Linux', observaciones: 'Seguridad perimetral' },
+        { id: 'D0004', codigo: 'D0004', nombre: 'Punto de acceso — Recepción', ip: '192.168.1.20', tipo: 'AP', ubicacion: 'Recepción', estado: 'en_linea', sistema_operativo: 'OpenWrt', observaciones: 'Cobertura inalámbrica' },
+        { id: 'D0005', codigo: 'D0005', nombre: 'Switch de respaldo', ip: '192.168.1.11', tipo: 'SW', ubicacion: 'Rack secundario', estado: 'desconocido', sistema_operativo: 'SwitchOS', observaciones: 'Redundancia LAN' },
+        { id: 'D0006', codigo: 'D0006', nombre: 'Router de laboratorio', ip: '192.168.1.3', tipo: 'RT', ubicacion: 'Laboratorio', estado: 'en_linea', sistema_operativo: 'RouterOS', observaciones: 'Red de pruebas' }
     ];
 
     function deviceCode(device) {
-        if (device.codigo || device.dis_id) return String(device.codigo || device.dis_id);
-        return 'DEV-' + String(device.id).padStart(3, '0');
+        return String(device.codigo || device.dis_id || device.id || '');
     }
 
     function statusInfo(state) {
         var value = String(state || '').toLowerCase();
-        if (['en_linea', 'activo', '1'].indexOf(value) !== -1) return { label: 'Activo', className: 'state-active', formValue: 'activo' };
-        if (['fuera_de_linea', 'advertencia', 'falla', 'm'].indexOf(value) !== -1) return { label: 'En falla', className: 'state-failure', formValue: 'falla' };
-        return { label: 'Inactivo', className: 'state-inactive', formValue: 'inactivo' };
+        if (['en_linea', 'activo', 'a'].indexOf(value) !== -1) return { label: 'Activo', className: 'state-active', formValue: 'A' };
+        if (['fuera_de_linea', 'falla', 'f'].indexOf(value) !== -1) return { label: 'En falla', className: 'state-failure', formValue: 'F' };
+        if (['advertencia', 'w'].indexOf(value) !== -1) return { label: 'Advertencia', className: 'state-pending', formValue: 'W' };
+        return { label: 'Inactivo', className: 'state-inactive', formValue: 'I' };
+    }
+
+    function connectivityInfo(device) {
+        var result = monitorStates[String(device.id)] || {};
+        var state = result.estado || device.estado || 'desconocido';
+        var values = {
+            en_linea: { label: 'En línea', className: 'state-active' },
+            fuera_de_linea: { label: 'Fuera de línea', className: 'state-failure' },
+            advertencia: { label: 'Advertencia', className: 'state-pending' }
+        };
+        var info = values[state] || { label: 'Desconocido', className: 'state-inactive' };
+        return {
+            label: info.label,
+            className: info.className,
+            latency: result.latencia_ms == null ? 'Latencia sin medir' : result.latencia_ms + ' ms'
+        };
     }
 
     function escape(value) {
@@ -70,7 +87,7 @@
         var query = document.getElementById('deviceSearch').value.trim().toLowerCase();
         var type = document.getElementById('deviceTypeFilter').value;
         return devices.filter(function (device) {
-            var searchable = [deviceCode(device), device.nombre, device.ip, device.ubicacion].join(' ').toLowerCase();
+            var searchable = [deviceCode(device), device.nombre, device.ip, device.tipo, device.ubicacion, device.sistema_operativo, device.observaciones].join(' ').toLowerCase();
             return (!query || searchable.indexOf(query) !== -1) && (!type || device.tipo === type);
         });
     }
@@ -84,16 +101,28 @@
             '<div class="device-card-top"><span class="device-type-icon"><i class="bi ' + icon + '" aria-hidden="true"></i></span><span class="state-pill ' + status.className + '">' + status.label + '</span></div>' +
             '<div class="device-identity"><span class="device-code">' + escape(code) + '</span>' + (isNew ? '<span class="new-tag">NUEVO</span>' : '') +
             '<h3 title="' + escape(device.nombre) + '">' + escape(device.nombre || 'Sin nombre') + '</h3><span class="ip-address">' + escape(device.ip) + '</span></div>' +
-            '<div class="device-meta"><span><i class="bi bi-geo-alt" aria-hidden="true"></i>' + escape(device.ubicacion || 'Ubicación no registrada') + '</span><span><i class="bi bi-person" aria-hidden="true"></i>' + escape(device.responsable || 'Responsable no asignado') + '</span></div>' +
+            '<div class="device-meta"><span><i class="bi bi-geo-alt" aria-hidden="true"></i>' + escape(device.ubicacion || 'Ubicación no registrada') + '</span><span><i class="bi bi-cpu" aria-hidden="true"></i>' + escape(device.sistema_operativo || 'Sistema operativo no registrado') + '</span><span><i class="bi bi-card-text" aria-hidden="true"></i>' + escape(device.observaciones || 'Sin observaciones') + '</span></div>' +
             '<div class="device-card-bottom"><span>' + escape(typeLabels[device.tipo] || device.tipo || 'Dispositivo') + '</span><button class="text-link" type="button" data-device-action="details" data-device-id="' + escape(device.id) + '">Ver dispositivo ↗</button></div>' +
             '</article>';
     }
 
     function renderDeviceRow(device) {
         var status = statusInfo(device.estado);
-        return '<tr><td><span class="device-code">' + escape(deviceCode(device)) + '</span></td><td><span class="device-name">' + escape(device.nombre || 'Sin nombre') + '</span><span class="secondary-line">' + escape(typeLabels[device.tipo] || device.tipo) + '</span></td>' +
-            '<td class="ip-address">' + escape(device.ip) + '</td><td>' + escape(device.ubicacion || '—') + '</td><td><span class="state-pill ' + status.className + '">' + status.label + '</span></td>' +
-            '<td><div class="d-flex gap-2"><button class="text-link" type="button" data-device-action="details" data-device-id="' + escape(device.id) + '">Ver dispositivo ↗</button><button class="text-link" type="button" data-device-action="edit" data-device-id="' + escape(device.id) + '" aria-label="Editar dispositivo"><i class="bi bi-pencil"></i></button></div></td></tr>';
+        var connectivity = connectivityInfo(device);
+        var id = escape(device.id);
+        return '<tr><td><span class="device-code">' + escape(deviceCode(device)) + '</span></td>' +
+            '<td><span class="device-name">' + escape(device.nombre || 'Sin nombre') + '</span></td>' +
+            '<td class="ip-address">' + escape(device.ip) + '</td>' +
+            '<td>' + escape(typeLabels[device.tipo] || device.tipo || '—') + '</td>' +
+            '<td>' + escape(device.ubicacion || '—') + '</td>' +
+            '<td><span class="state-pill ' + status.className + '">' + status.label + '</span></td>' +
+            '<td><span class="state-pill ' + connectivity.className + '">' + connectivity.label + '</span><span class="secondary-line">' + escape(connectivity.latency) + '</span></td>' +
+            '<td><div class="d-flex flex-wrap gap-2">' +
+                '<button class="btn btn-sm btn-light btn-icon device-row-action" type="button" data-device-action="ping" data-device-id="' + id + '" aria-label="Comprobar ping de ' + escape(device.nombre) + '"><i class="bi bi-arrow-repeat"></i>Ping</button>' +
+                '<button class="text-link" type="button" data-device-action="edit" data-device-id="' + id + '" aria-label="Editar dispositivo ' + escape(device.nombre) + '"><i class="bi bi-pencil"></i>Editar</button>' +
+                '<button class="text-link text-danger" type="button" data-device-action="delete" data-device-id="' + id + '" aria-label="Eliminar dispositivo ' + escape(device.nombre) + '"><i class="bi bi-trash3"></i>Eliminar</button>' +
+                '<button class="text-link" type="button" data-device-action="details" data-device-id="' + id + '">Ver</button>' +
+            '</div></td></tr>';
     }
 
     function renderDevices() {
@@ -105,7 +134,7 @@
             : '<div class="empty-state">No se encontraron dispositivos con esos criterios.</div>';
         document.getElementById('deviceListBody').innerHTML = visible.length
             ? visible.map(renderDeviceRow).join('')
-            : '<tr><td colspan="6"><div class="empty-state">No se encontraron dispositivos con esos criterios.</div></td></tr>';
+            : '<tr><td colspan="8"><div class="empty-state">No se encontraron dispositivos con esos criterios.</div></td></tr>';
         document.getElementById('deviceList').setAttribute('aria-label', totalText);
         document.getElementById('deviceGrid').classList.toggle('d-none', viewMode !== 'grid');
         document.getElementById('deviceList').classList.toggle('d-none', viewMode !== 'list');
@@ -140,14 +169,14 @@
         var form = document.getElementById('deviceForm');
         form.reset();
         document.getElementById('deviceBackendId').value = '';
-        document.getElementById('deviceCode').readOnly = false;
+        document.getElementById('deviceCode').readOnly = true;
         document.getElementById('deviceCodeLock').classList.add('d-none');
-        document.getElementById('deviceCodeHint').textContent = 'Identificador para consultar al equipo. El backend actual genera el ID numérico.';
+        document.getElementById('deviceCodeHint').textContent = 'El sistema genera un código de 5 caracteres al guardar.';
         document.getElementById('deviceFormAlert').className = 'd-none';
         document.getElementById('ipConflictCard').classList.remove('visible');
         document.getElementById('deviceFormStatus').textContent = 'Completa todos los campos para continuar.';
         clearValidation();
-        document.querySelectorAll('#deviceType option[data-dynamic], #deviceResponsible option[data-dynamic]').forEach(function (option) { option.remove(); });
+        document.querySelectorAll('#deviceType option[data-dynamic]').forEach(function (option) { option.remove(); });
     }
 
     function setFormMode(mode, device) {
@@ -165,8 +194,8 @@
         document.getElementById('formChecklistTitle').textContent = editing ? 'Antes de guardar' : 'Antes de registrar';
         document.getElementById('formAsideTitle').textContent = editing ? 'Decisión de diseño' : 'Un registro, varias vistas';
         document.getElementById('formAsideText').textContent = editing
-            ? 'El código se muestra no editable para conservar la trazabilidad. El backend genera un ID numérico y no persiste responsable ni función.'
-            : 'Después del registro, el equipo estará disponible en monitoreo e incidencias. El backend genera el ID y no persiste responsable ni función.';
+            ? 'El código se conserva y no se puede editar.'
+            : 'Después del registro, el equipo estará disponible en monitoreo e incidencias.';
         document.getElementById('saveDeviceButton').innerHTML = editing
             ? '<i class="bi bi-check2"></i>Guardar cambios'
             : '<i class="bi bi-plus-lg"></i>Registrar dispositivo';
@@ -181,8 +210,9 @@
             selectExistingValue('deviceType', device.tipo, typeLabels[device.tipo] || device.tipo);
             document.getElementById('deviceIp').value = device.ip || '';
             document.getElementById('deviceLocation').value = device.ubicacion || '';
-            selectExistingValue('deviceResponsible', device.responsable, device.responsable);
-            document.getElementById('deviceFunction').value = device.funcion || '';
+            document.getElementById('deviceMac').value = device.mac || '';
+            document.getElementById('deviceOs').value = device.sistema_operativo || '';
+            document.getElementById('deviceObservations').value = device.observaciones || '';
             document.getElementById('deviceStatus').value = statusInfo(device.estado).formValue;
         }
         showView('deviceFormView');
@@ -205,12 +235,23 @@
         document.getElementById('deviceIpIcon').classList.add('d-none');
     }
 
-    function ipv4IsValid(value) {
-        var octets = value.trim().split('.');
-        if (octets.length !== 4) return false;
-        return octets.every(function (octet) {
+    function ipIsValid(value) {
+        var address = value.trim();
+        var octets = address.split('.');
+        if (octets.length === 4 && octets.every(function (octet) {
             return /^(0|[1-9]\d{0,2})$/.test(octet) && Number(octet) >= 0 && Number(octet) <= 255;
+        })) return true;
+
+        if (address.length > 45 || !/^[0-9a-f:]+$/i.test(address) || address.indexOf(':') === -1) return false;
+        var compressed = address.indexOf('::') !== -1;
+        if (compressed && address.indexOf('::') !== address.lastIndexOf('::')) return false;
+        var sections = address.split('::');
+        var groups = [];
+        sections.forEach(function (section) {
+            if (section) groups = groups.concat(section.split(':'));
         });
+        if (!groups.every(function (group) { return group.length > 0 && group.length <= 4; })) return false;
+        return compressed ? groups.length < 8 : groups.length === 8;
     }
 
     function duplicateIp(ip, currentId) {
@@ -240,19 +281,17 @@
     function validateForm() {
         clearValidation();
         document.getElementById('ipConflictCard').classList.remove('visible');
-        var requiredFields = ['deviceCode', 'deviceName', 'deviceIp', 'deviceType', 'deviceLocation', 'deviceResponsible', 'deviceFunction', 'deviceStatus'];
+        var requiredFields = ['deviceName', 'deviceIp', 'deviceType', 'deviceStatus'];
         var invalid = [];
         requiredFields.forEach(function (id) {
             var field = document.getElementById(id);
             var isInvalid = !field.value.trim();
-            if (id === 'deviceCode' && field.value.trim() && !/^DEV-\d{3}$/i.test(field.value.trim())) isInvalid = true;
-            if (id === 'deviceIp' && field.value.trim() && !ipv4IsValid(field.value)) isInvalid = true;
+            if (id === 'deviceIp' && field.value.trim() && !ipIsValid(field.value)) isInvalid = true;
             if (isInvalid) {
                 field.classList.add('is-invalid');
                 var error = document.querySelector('[data-error-for="' + id + '"]');
                 if (error) {
-                    if (id === 'deviceCode' && field.value.trim()) error.textContent = 'Usa el formato DEV-001.';
-                    if (id === 'deviceIp' && field.value.trim()) error.textContent = 'IPv4 no válida. Usa valores entre 0 y 255.';
+                    if (id === 'deviceIp' && field.value.trim()) error.textContent = 'La dirección IPv4 o IPv6 no es válida.';
                     error.classList.add('visible');
                 }
                 invalid.push(field);
@@ -270,36 +309,59 @@
 
         if (invalid.length && !conflict) {
             var count = invalid.length;
-            showFormError('Revisa los ' + count + ' campos señalados', 'Completa los campos obligatorios y corrige el formato de la dirección IPv4.', 'danger');
+            showFormError('Revisa los ' + count + ' campos señalados', 'Completa los campos obligatorios y corrige el formato de la dirección IP.', 'danger');
         }
         document.getElementById('deviceFormStatus').textContent = invalid.length ? 'Corrige los campos para continuar.' : 'Todos los campos están completos.';
         return invalid.length === 0;
     }
 
     function formPayload() {
-        var selectedState = document.getElementById('deviceStatus').value;
         return {
-            nombre: document.getElementById('deviceName').value.trim(),
-            ip: document.getElementById('deviceIp').value.trim(),
-            tipo: document.getElementById('deviceType').value,
-            ubicacion: document.getElementById('deviceLocation').value.trim(),
-            estado: { activo: 'en_linea', inactivo: 'desconocido', falla: 'fuera_de_linea' }[selectedState],
-            codigo: document.getElementById('deviceCode').value.trim(),
-            responsable: document.getElementById('deviceResponsible').value,
-            funcion: document.getElementById('deviceFunction').value.trim()
+            dis_nombre: document.getElementById('deviceName').value.trim(),
+            dis_ip: document.getElementById('deviceIp').value.trim(),
+            dis_tipo: document.getElementById('deviceType').value,
+            dis_ubicacion: document.getElementById('deviceLocation').value.trim(),
+            dis_mac: document.getElementById('deviceMac').value.trim(),
+            dis_sisop: document.getElementById('deviceOs').value.trim(),
+            dis_obs: document.getElementById('deviceObservations').value.trim(),
+            dis_stat: document.getElementById('deviceStatus').value
         };
     }
 
     function localPreviewSave(payload, editingId) {
+        function asPreviewDevice(id) {
+            return {
+                id: id,
+                codigo: id,
+                dis_id: id,
+                dis_nombre: payload.dis_nombre,
+                nombre: payload.dis_nombre,
+                dis_tipo: payload.dis_tipo,
+                tipo: payload.dis_tipo,
+                dis_ubicacion: payload.dis_ubicacion,
+                ubicacion: payload.dis_ubicacion,
+                dis_ip: payload.dis_ip,
+                ip: payload.dis_ip,
+                dis_mac: payload.dis_mac,
+                mac: payload.dis_mac,
+                dis_sisop: payload.dis_sisop,
+                sistema_operativo: payload.dis_sisop,
+                dis_obs: payload.dis_obs,
+                observaciones: payload.dis_obs,
+                dis_stat: payload.dis_stat,
+                estado: { A: 'en_linea', I: 'desconocido', F: 'fuera_de_linea', W: 'advertencia' }[payload.dis_stat]
+            };
+        }
+
         if (editingId) {
             var existing = devices.find(function (device) { return String(device.id) === String(editingId); });
-            if (existing) Object.assign(existing, payload);
+            if (existing) Object.assign(existing, asPreviewDevice(editingId));
             currentDevice = existing || currentDevice;
         } else {
-            var nextId = devices.reduce(function (max, device) { return Math.max(max, Number(device.id) || 0); }, 0) + 1;
-            var newDevice = Object.assign({ id: nextId, _preview: true }, payload);
+            var nextId = 'D' + Date.now().toString(36).slice(-4).toUpperCase();
+            var newDevice = Object.assign(asPreviewDevice(nextId), { _preview: true });
             devices.unshift(newDevice);
-            justCreatedId = String(nextId);
+            justCreatedId = nextId;
             currentDevice = newDevice;
         }
         renderTypeFilter();
@@ -333,6 +395,9 @@
             if (backendId) {
                 openDetails(currentDevice, 'Cambios guardados correctamente.');
             } else {
+                resetForm();
+                currentDevice = null;
+                formMode = 'create';
                 showView('devicesInventoryView');
                 var code = deviceCode(savedDevice);
                 var name = savedDevice.nombre || payload.nombre;
@@ -368,9 +433,9 @@
             ? '<i class="bi bi-check-circle me-1"></i><strong>Cambios guardados correctamente</strong><p class="alert-detail mb-0">' + App.escapeHtml('La información de ' + code + ' se actualizó en el inventario.') + '</p>'
             : '';
         var fields = [
-            ['Código', code], ['Nombre / identificador', device.nombre], ['Dirección IPv4', device.ip],
-            ['Tipo de dispositivo', typeLabels[device.tipo] || device.tipo], ['Ubicación', device.ubicacion],
-            ['Responsable', device.responsable], ['Función', device.funcion]
+            ['Código', code], ['Nombre', device.nombre], ['Tipo de dispositivo', typeLabels[device.tipo] || device.tipo],
+            ['Dirección IP', device.ip], ['Ubicación', device.ubicacion], ['Dirección MAC', device.mac], ['Sistema operativo', device.sistema_operativo],
+            ['Observaciones', device.observaciones], ['Fecha de ingreso', device.dis_feing], ['Última modificación', device.dis_femod]
         ];
         document.getElementById('deviceDetailFields').innerHTML = fields.map(function (field) {
             return '<div class="detail-item"><dt>' + App.escapeHtml(field[0]) + '</dt><dd class="' + (field[0] === 'Código' || field[0] === 'Dirección IPv4' ? 'mono' : '') + '">' + escape(field[1]) + '</dd></div>';
@@ -382,8 +447,8 @@
         document.getElementById('detailMonitorAction').href = monitorUrl;
         document.getElementById('detailMonitorState').textContent = 'Estado operativo: ' + status.label;
         document.getElementById('detailIncidentsAction').href = '/incidencias?dispositivo=' + encodeURIComponent(device.id);
-        document.getElementById('deviceLastMovement').textContent = device.ultimo_monitoreo
-            ? 'Última comprobación de ' + code + ': ' + App.formatDate(device.ultimo_monitoreo) + '.'
+        document.getElementById('deviceLastMovement').textContent = device.dis_femod
+            ? 'Última modificación de ' + code + ': ' + App.formatDate(device.dis_femod) + '.'
             : 'Alta de ' + code + ' · ' + (device.nombre || 'Dispositivo') + ' incorporado al inventario con la IP ' + (device.ip || 'no registrada') + '.';
         document.getElementById('detailIncidentCount').textContent = 'Consulta las incidencias asociadas.';
         showView('deviceDetailView');
@@ -427,6 +492,59 @@
         }
     }
 
+    async function pingDevice(button, device) {
+        if (previewMode || device._preview) {
+            notify('Vista previa: no se ejecutó una comprobación real del dispositivo.', 'warning');
+            return;
+        }
+        var originalContent = button.innerHTML;
+        button.disabled = true;
+        button.innerHTML = '<span class="spinner-border spinner-border-sm" aria-hidden="true"></span><span>Comprobando</span>';
+        try {
+            var result = App.unwrap(await App.apiRequest('/api/monitoreo/ping/' + encodeURIComponent(device.id), { method: 'POST' }));
+            monitorStates[String(device.id)] = {
+                estado: result.estado || 'desconocido',
+                latencia_ms: result.latencia_ms == null ? null : result.latencia_ms
+            };
+            if (result.estado) device.estado = result.estado;
+            renderDevices();
+            notify('Ping de ' + deviceCode(device) + ': ' + (result.latencia_ms == null ? 'sin respuesta' : result.latencia_ms + ' ms') + '.', result.estado === 'en_linea' ? 'success' : 'warning');
+        } catch (error) {
+            notify('No se pudo comprobar el dispositivo: ' + error.message, 'danger');
+        } finally {
+            if (button.isConnected) {
+                button.disabled = false;
+                button.innerHTML = originalContent;
+            }
+        }
+    }
+
+    async function pingAllDevices(button) {
+        if (previewMode) {
+            notify('Vista previa: no se ejecutó un escaneo real de la red.', 'warning');
+            return;
+        }
+        var originalContent = button.innerHTML;
+        button.disabled = true;
+        button.innerHTML = '<span class="spinner-border spinner-border-sm" aria-hidden="true"></span>Escaneando…';
+        try {
+            var result = App.unwrap(await App.apiRequest('/api/monitoreo/ping-all', { method: 'POST' }));
+            (result.dispositivos || []).forEach(function (item) {
+                monitorStates[String(item.dis_id || item.dispositivo_id)] = {
+                    estado: item.estado || 'desconocido',
+                    latencia_ms: item.latencia_ms == null ? null : item.latencia_ms
+                };
+            });
+            await loadDevices();
+            notify('Escaneo completado: ' + (result.total_verificados || 0) + ' dispositivos verificados.', 'success');
+        } catch (error) {
+            notify('No se pudo completar el escaneo de la red: ' + error.message, 'danger');
+        } finally {
+            button.disabled = false;
+            button.innerHTML = originalContent;
+        }
+    }
+
     async function showHistory() {
         if (!currentDevice) return;
         if (currentDevice._preview) {
@@ -458,6 +576,16 @@
             handleDelete();
             return;
         }
+        if (action === 'delete') {
+            currentDevice = devices.find(function (item) { return String(item.id) === String(button.dataset.deviceId); }) || null;
+            handleDelete();
+            return;
+        }
+        if (action === 'ping') {
+            var pingTarget = devices.find(function (item) { return String(item.id) === String(button.dataset.deviceId); });
+            if (pingTarget) pingDevice(button, pingTarget);
+            return;
+        }
         if (action === 'edit-current') {
             if (currentDevice) setFormMode('edit', currentDevice);
             return;
@@ -481,11 +609,12 @@
         document.getElementById('deviceTypeFilter').addEventListener('change', renderDevices);
         document.getElementById('gridViewButton').addEventListener('click', function () { setViewMode('grid'); });
         document.getElementById('listViewButton').addEventListener('click', function () { setViewMode('list'); });
+        document.getElementById('pingAllDevicesButton').addEventListener('click', function (event) { pingAllDevices(event.currentTarget); });
         document.getElementById('deviceIp').addEventListener('input', function () {
             this.classList.remove('is-invalid');
             document.getElementById('ipConflictCard').classList.remove('visible');
             document.querySelector('[data-error-for="deviceIp"]').classList.remove('visible');
-            var existing = this.value.trim() && ipv4IsValid(this.value) ? duplicateIp(this.value, document.getElementById('deviceBackendId').value) : null;
+            var existing = this.value.trim() && ipIsValid(this.value) ? duplicateIp(this.value, document.getElementById('deviceBackendId').value) : null;
             if (existing) showConflict(existing);
         });
         document.addEventListener('click', handleAction);

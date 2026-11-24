@@ -3,7 +3,7 @@
     var App = window.App;
 
     function metricValue(value) {
-        return value == null ? '0' : String(value);
+        return value == null ? '—' : String(value);
     }
 
     async function loadDeviceMetrics() {
@@ -13,10 +13,10 @@
             document.getElementById('metricOnline').textContent = metricValue(metrics.en_linea);
             document.getElementById('metricOffline').textContent = metricValue(metrics.fuera_de_linea);
         } catch (error) {
-            document.getElementById('metricDevices').textContent = '7';
-            document.getElementById('metricOnline').textContent = '5';
-            document.getElementById('metricOffline').textContent = '1';
-            App.showAlert('Vista previa: métricas de dispositivos de ejemplo. ' + error.message, 'warning');
+            document.getElementById('metricDevices').textContent = '—';
+            document.getElementById('metricOnline').textContent = '—';
+            document.getElementById('metricOffline').textContent = '—';
+            App.showAlert('No se pudieron cargar las métricas de dispositivos: ' + error.message, 'warning');
         }
     }
 
@@ -25,8 +25,30 @@
             var metrics = App.unwrap(await App.apiRequest('/api/incidencias/metricas'));
             document.getElementById('metricOpenIncidents').textContent = metricValue(metrics.abiertas);
         } catch (error) {
-            document.getElementById('metricOpenIncidents').textContent = '2';
-            App.showAlert('Vista previa: métricas de incidencias de ejemplo. ' + error.message, 'warning');
+            document.getElementById('metricOpenIncidents').textContent = '—';
+            App.showAlert('No se pudieron cargar las métricas de incidencias: ' + error.message, 'warning');
+        }
+    }
+
+    async function loadLatestScan() {
+        var date = document.getElementById('metricLastScan');
+        var details = document.getElementById('metricLastScanDetails');
+        try {
+            var result = App.unwrap(await App.apiRequest('/api/monitoreo/historial?limit=1'));
+            var latest = Array.isArray(result) ? result[0] : null;
+            if (!latest) {
+                date.textContent = 'Sin escaneos';
+                details.textContent = 'Ejecuta una comprobación desde Dispositivos.';
+                return;
+            }
+            date.textContent = App.formatDate(latest.fecha_monitoreo || latest.mon_fec);
+            var device = latest.dispositivo_nombre || ('Dispositivo ' + (latest.dispositivo_id || ''));
+            var latency = latest.latencia_ms == null ? 'sin latencia' : latest.latencia_ms + ' ms';
+            details.textContent = device + ' · ' + (latest.estado || 'comprobado') + ' · ' + latency;
+        } catch (error) {
+            date.textContent = 'No disponible';
+            details.textContent = error.message;
+            App.showAlert('No se pudo cargar el último escaneo: ' + error.message, 'warning');
         }
     }
 
@@ -71,21 +93,15 @@
                     App.escapeHtml(item.title) + '</strong><small>' + App.escapeHtml(item.detail) + '</small></div></div>';
             }).join('');
         } catch (error) {
-            host.innerHTML = [
-                ['online', 'Switch principal · en_linea', '8 ms · Ejemplo de actividad'],
-                ['incident', 'Incidencia: Conectividad intermitente', 'Router de acceso · abierta · Ejemplo'],
-                ['offline', 'Firewall perimetral · fuera_de_linea', 'Latencia no disponible · Ejemplo']
-            ].map(function (item) {
-                return '<div class="activity-item"><span class="activity-dot ' + item[0] + '"></span><div><strong>' +
-                    App.escapeHtml(item[1]) + '</strong><small>' + App.escapeHtml(item[2]) + '</small></div></div>';
-            }).join('');
-            App.showAlert('Vista previa: actividad de ejemplo. ' + error.message, 'warning');
+            host.innerHTML = '<div class="empty-state">No se pudo cargar la actividad: ' + App.escapeHtml(error.message) + '</div>';
+            App.showAlert('No se pudo cargar la actividad reciente: ' + error.message, 'warning');
         }
     }
 
     document.addEventListener('DOMContentLoaded', function () {
         loadDeviceMetrics();
         loadIncidentMetrics();
+        loadLatestScan();
         loadActivity();
     });
 }());

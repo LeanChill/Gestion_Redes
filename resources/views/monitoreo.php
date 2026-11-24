@@ -12,7 +12,7 @@ require __DIR__ . '/layout/header.php';
     <form id="monitorSearchForm" class="monitor-search-form">
         <div>
             <label class="form-label" for="monitorDeviceCode">Código del dispositivo</label>
-            <input id="monitorDeviceCode" class="form-control mono" placeholder="Ej. DEV-001" autocomplete="off" aria-describedby="monitorSearchHint">
+            <input id="monitorDeviceCode" class="form-control mono" maxlength="5" placeholder="Ej. D4K2P" autocomplete="off" aria-describedby="monitorSearchHint">
         </div>
         <button class="btn btn-primary btn-icon" type="submit"><i class="bi bi-search"></i>Buscar</button>
         <small id="monitorSearchHint" class="form-hint">Ingresa el código completo para consultar si el equipo existe y revisar su estado operativo.</small>

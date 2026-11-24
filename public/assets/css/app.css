@@ -42,6 +42,11 @@ button, input, select, textarea { font: inherit; }
 
 .main-column { display: flex; min-height: 100vh; flex-direction: column; margin-left: 240px; }
 .topbar { position: sticky; top: 0; z-index: 1010; display: flex; height: 64px; flex: 0 0 64px; align-items: center; justify-content: space-between; gap: 20px; padding: 0 30px; border-bottom: 1px solid var(--border); background: rgba(255,255,255,.97); }
+.primary-navigation { display: flex; min-height: 46px; align-items: center; gap: 5px; padding: 0 30px; border-bottom: 1px solid var(--border); background: #fff; }
+.top-nav-link { display: inline-flex; min-height: 32px; align-items: center; gap: 7px; padding: 0 11px; border-radius: 7px; color: #64748b; font-size: 11px; font-weight: 550; text-decoration: none; white-space: nowrap; }
+.top-nav-link i { font-size: 13px; }
+.top-nav-link:hover { background: #f1f5f9; color: #1e293b; }
+.top-nav-link.active { background: #eff6ff; color: var(--primary); }
 .topbar-workspace, .topbar-account { display: flex; align-items: center; }
 .topbar-workspace { gap: 11px; }
 .workspace-label { color: var(--muted); font-size: 12px; }
@@ -89,6 +94,12 @@ button, input, select, textarea { font: inherit; }
 .icon-amber { background: #fffbeb; color: #b7791f; }
 .metric-label { margin: 12px 0 1px; color: var(--muted); font-size: 11px; }
 .metric-value { margin: 0; color: var(--ink); font-size: 25px; font-weight: 650; letter-spacing: -.04em; line-height: 1.15; }
+.metric-dual { display: flex; align-items: center; gap: 23px; margin-top: 2px; }
+.metric-dual > span { display: grid; gap: 3px; }
+.metric-dual .metric-value { font-size: 23px; }
+.metric-dual small { color: var(--muted); font-size: 9px; }
+.metric-date { font-size: 17px; letter-spacing: -.02em; }
+.metric-card > .text-secondary { display: block; margin-top: 5px; font-size: 9px; }
 .loading-state, .empty-state { padding: 28px 10px; color: var(--muted); text-align: center; font-size: 12px; }
 .activity-list { display: grid; }
 .activity-item { display: flex; align-items: flex-start; gap: 10px; padding: 11px 0; border-top: 1px solid #f1f4f8; }
@@ -244,10 +255,17 @@ button, input, select, textarea { font: inherit; }
 .incident-state-select { min-width: 120px; max-width: 145px; }
 .quick-links { display: grid; }
 .app-table .incident-title { display: block; max-width: 280px; color: #1e293b; font-size: 10px; font-weight: 650; }
+.incident-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; }
+.incident-toolbar .form-control { width: 210px; }
+.incident-toolbar .form-select { width: 135px; }
+.btn-resolve-incident { --bs-btn-font-size: 10px; --bs-btn-padding-y: .3rem; --bs-btn-padding-x: .55rem; white-space: nowrap; }
+.device-row-action { --bs-btn-font-size: 9px; --bs-btn-padding-y: .25rem; --bs-btn-padding-x: .45rem; white-space: nowrap; }
 
 @media (max-width: 1199.98px) {
     .device-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .management-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .primary-navigation { padding: 0 20px; }
+    .top-nav-link { padding: 0 8px; font-size: 10px; }
 }
 @media (max-width: 991.98px) {
     .main-column { margin-left: 0; }
@@ -295,4 +313,7 @@ button, input, select, textarea { font: inherit; }
     .content-card { padding: 14px; }
     .inventory-summary { font-size: 10px; }
     .app-footer span:last-child { display: none; }
+    .incident-toolbar { width: 100%; }
+    .incident-toolbar .form-control { width: 100%; }
+    .incident-toolbar .form-select { flex: 1; width: auto; }
 }
