@@ -6,11 +6,7 @@ require __DIR__ . '/layout/header.php';
 <section class="page-heading d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3">
     <div>
         <p class="eyebrow mb-2">VISTA GENERAL</p>
-<<<<<<< HEAD
         <h1 class="h2 mb-1">Inicio</h1>
-=======
-        <h1 class="h2 mb-1">Dashboard</h1>
->>>>>>> 6b1b0fe43da5500cc23cabc3006ef13f0e7c5369
         <p class="text-secondary mb-0">Resumen del estado de tu infraestructura de red.</p>
     </div>
     <a class="btn btn-primary" href="/dispositivos"><i class="bi bi-plus-lg me-2"></i>Gestionar dispositivos</a>

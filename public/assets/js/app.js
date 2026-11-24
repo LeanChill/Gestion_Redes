@@ -56,7 +56,6 @@
 
     function connectionBadge(state) {
         var values = {
-<<<<<<< HEAD
             en_linea: ['state-active', 'Activo'],
             fuera_de_linea: ['state-failure', 'En falla'],
             advertencia: ['state-failure', 'En falla'],
@@ -67,43 +66,21 @@
         };
         var badge = values[String(state)] || ['state-inactive', String(state || 'Inactivo')];
         return '<span class="state-pill ' + badge[0] + '">' + escapeHtml(badge[1]) + '</span>';
-=======
-            en_linea: ['success', 'En línea'],
-            fuera_de_linea: ['danger', 'Fuera de línea'],
-            advertencia: ['warning text-dark', 'Advertencia'],
-            desconocido: ['secondary', 'Desconocido'],
-            '1': ['success', 'Activo'],
-            '0': ['secondary', 'Inactivo'],
-            M: ['warning text-dark', 'Mantenimiento']
-        };
-        var badge = values[String(state)] || ['secondary', String(state || 'Sin estado')];
-        return '<span class="badge text-bg-' + badge[0] + '">' + escapeHtml(badge[1]) + '</span>';
->>>>>>> 6b1b0fe43da5500cc23cabc3006ef13f0e7c5369
     }
 
     function incidentStatusBadge(state) {
         var values = {
-<<<<<<< HEAD
             abierta: ['state-failure', 'Abierta'],
             en_proceso: ['state-pending', 'En proceso'],
             resuelta: ['state-active', 'Resuelta']
         };
         var badge = values[String(state)] || ['state-inactive', String(state || 'Sin estado')];
         return '<span class="state-pill ' + badge[0] + '">' + escapeHtml(badge[1]) + '</span>';
-=======
-            abierta: ['danger', 'Abierta'],
-            en_proceso: ['warning text-dark', 'En proceso'],
-            resuelta: ['success', 'Resuelta']
-        };
-        var badge = values[String(state)] || ['secondary', String(state || 'Sin estado')];
-        return '<span class="badge text-bg-' + badge[0] + '">' + escapeHtml(badge[1]) + '</span>';
->>>>>>> 6b1b0fe43da5500cc23cabc3006ef13f0e7c5369
     }
 
     function priorityBadge(value) {
         var normalized = String(value || '').toLowerCase();
         var values = {
-<<<<<<< HEAD
             alta: ['priority-high', 'Alta'], critica: ['priority-high', 'Crítica'], al: ['priority-high', 'Alta'],
             media: ['priority-medium', 'Media'], md: ['priority-medium', 'Media'],
             baja: ['priority-low', 'Baja'], bj: ['priority-low', 'Baja']
@@ -122,14 +99,6 @@
             if (title) node.setAttribute('title', title);
             else node.removeAttribute('title');
         });
-=======
-            alta: ['danger', 'Alta'], critica: ['danger', 'Crítica'], al: ['danger', 'Alta'],
-            media: ['warning text-dark', 'Media'], md: ['warning text-dark', 'Media'],
-            baja: ['secondary', 'Baja'], bj: ['secondary', 'Baja']
-        };
-        var badge = values[normalized] || ['secondary', String(value || '—')];
-        return '<span class="badge text-bg-' + badge[0] + '">' + escapeHtml(badge[1]) + '</span>';
->>>>>>> 6b1b0fe43da5500cc23cabc3006ef13f0e7c5369
     }
 
     async function checkHealth() {
@@ -141,7 +110,6 @@
             if (!response.ok || health.status !== 'online') throw new Error('API no disponible');
 
             if (health.database && health.database.connected) {
-<<<<<<< HEAD
                 badge.innerHTML = '<span class="network-indicator online"></span><span>API conectada</span>';
                 badge.removeAttribute('title');
                 setHealthState('online', 'Conectada');
@@ -155,20 +123,6 @@
             badge.innerHTML = '<span class="network-indicator offline"></span><span>API inaccesible</span>';
             badge.title = error.message || 'No fue posible consultar el estado del servicio.';
             setHealthState('offline', 'API inaccesible', badge.title);
-=======
-                badge.className = 'badge rounded-pill text-bg-success health-badge';
-                badge.innerHTML = '<i class="bi bi-check-circle me-1"></i>API y base de datos';
-                badge.removeAttribute('title');
-            } else {
-                badge.className = 'badge rounded-pill text-bg-warning health-badge';
-                badge.innerHTML = '<i class="bi bi-exclamation-triangle me-1"></i>Base de datos desconectada';
-                badge.title = health.database && health.database.message ? health.database.message : 'La base de datos no está disponible.';
-            }
-        } catch (error) {
-            badge.className = 'badge rounded-pill text-bg-danger health-badge';
-            badge.innerHTML = '<i class="bi bi-x-circle me-1"></i>API inaccesible';
-            badge.title = error.message || 'No fue posible consultar el estado del servicio.';
->>>>>>> 6b1b0fe43da5500cc23cabc3006ef13f0e7c5369
         }
     }
 
